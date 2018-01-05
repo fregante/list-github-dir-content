@@ -1,0 +1,38 @@
+{
+  "name": "list-github-dir-content",
+  "version": "0.0.0",
+  "description": "List all the files in a GitHub repo’s directory",
+  "license": "MIT",
+  "repository": "bfred-it/list-github-dir-content",
+  "author": "Federico Brigante <github@bfred.it> (bfred.it)",
+  "keywords": [
+    "github",
+    "contents",
+    "api",
+    "dir",
+    "directory",
+    "folder",
+    "listing"
+  ],
+  "files": [
+    "index.js",
+    "browser-fetch.js"
+  ],
+  "scripts": {
+    "test": "xo"
+  },
+  "devDependencies": {
+    "xo": "*"
+  },
+  "browser": {
+    "node-fetch": "./browser-fetch"
+  },
+  "dependencies": {
+    "node-fetch": "^1.7.3"
+  },
+  "xo": {
+    "envs": [
+      "browser"
+    ]
+  }
+}
