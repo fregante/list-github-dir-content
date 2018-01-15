@@ -24,14 +24,12 @@ async function viaTreesApi(repo, dir, token) {
 	const files = [];
 	const response = await fetch(`https://api.github.com/repos/${repo}/git/trees/master?recursive=1&access_token=${token}`);
 	const contents = await response.json();
-	if (contents.truncated) {
-		return viaContentsApi(repo, dir, token);
-	}
 	for (const item of contents.tree) {
 		if (item.type === 'blob' && item.path.startsWith(dir)) {
 			files.push(item.path);
 		}
 	}
+	files.truncated = contents.truncated;
 	return files;
 }
 
