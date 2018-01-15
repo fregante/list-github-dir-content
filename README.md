@@ -22,6 +22,11 @@ const filesArray = await listContent.viaTreesApi('Microsoft/vscode', 'src', myTo
 const filesArray = await listContent.viaContentsApi('Microsoft/vscode', 'src', myToken);
 
 // ['src/file.js', 'src/styles/main.css', ...]
+
+// listContent.viaTreesApi also adds a `truncated` property
+if (filesArray.truncated) {
+	// Perhaps try with viaContentsApi?
+}
 ```
 
 
@@ -36,7 +41,7 @@ Both methods return a Promise that resolves with an array of all the files in th
 
 `viaContentsApi` is preferred when you're downloading a small part of a huge repo. This will make a request for each subfolder requested, which may mean dozens or hundreds of HTTPS requests. ([GitHub API v3 reference](https://developer.github.com/v3/repos/contents/#get-contents))
 
-Notice: they're both the same and `viaTreesApi` may **also** try to use `viaContentsApi` if the repo has more files than required.
+**Notice:** while they work differently, they have the same output if no limit was reached.
 
 Known issues: 
 
