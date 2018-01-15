@@ -1,6 +1,6 @@
 {
   "name": "list-github-dir-content",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "List all the files in a GitHub repo’s directory",
   "license": "MIT",
   "repository": "bfred-it/list-github-dir-content",
