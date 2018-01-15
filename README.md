@@ -41,7 +41,7 @@ Notice: they're both the same and `viaTreesApi` may **also** try to use `viaCont
 Known issues: 
 
 - `viaContentsApi` is limited to 1000 files _per directory_
-- `viaTreesApi` is limited to an unknown amount of files _per repo_
+- `viaTreesApi` is limited to around 60,000 files _per repo_
 
 
 #### repo
