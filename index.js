@@ -1,19 +1,23 @@
 const fetch = require('node-fetch'); // Automatically excluded in browser bundles
 
-const defaultRef = 'master';
+const defaultOptions = {
+	ref: 'master',
+	token: '' // Empty token disable auth
+};
 
 // Great for downloads with few sub directories on big repos
 // Cons: many requests if the repo has a lot of nested dirs
-async function viaContentsApi(repo, dir, token, ref = defaultRef) {
+async function viaContentsApi(repo, dir, opts) {
+	opts = Object.assign(defaultOptions, opts);
 	const files = [];
 	const requests = [];
-	const response = await fetch(`https://api.github.com/repos/${repo}/contents/${dir}?access_token=${token}&ref=${ref}`);
+	const response = await fetch(`https://api.github.com/repos/${repo}/contents/${dir}?access_token=${opts.token}&ref=${opts.ref}`);
 	const contents = await response.json();
 	for (const item of contents) {
 		if (item.type === 'file') {
 			files.push(item.path);
 		} else if (item.type === 'dir') {
-			requests.push(viaContentsApi(repo, item.path, token, ref));
+			requests.push(viaContentsApi(repo, item.path, opts));
 		}
 	}
 	return files.concat(...await Promise.all(requests));
@@ -22,9 +26,9 @@ async function viaContentsApi(repo, dir, token, ref = defaultRef) {
 // Great for downloads with many sub directories
 // Pros: one request + maybe doesn't require token
 // Cons: huge on huge repos + may be truncated and has to fallback to viaContentsApi
-async function viaTreesApi(repo, dir, token, ref = defaultRef) {
+async function viaTreesApi(repo, dir, opts) {
 	const files = [];
-	const response = await fetch(`https://api.github.com/repos/${repo}/git/trees/${ref}?recursive=1&access_token=${token}`);
+	const response = await fetch(`https://api.github.com/repos/${repo}/git/trees/${opts.ref}?recursive=1&access_token=${opts.token}`);
 	const contents = await response.json();
 	for (const item of contents.tree) {
 		if (item.type === 'blob' && item.path.startsWith(dir)) {
