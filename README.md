@@ -43,7 +43,7 @@ Both methods return a Promise that resolves with an array of all the files in th
 
 **Notice:** while they work differently, they have the same output if no limit was reached.
 
-Known issues: 
+Known issues:
 
 - `viaContentsApi` is limited to 1000 files _per directory_
 - `viaTreesApi` is limited to around 60,000 files _per repo_
@@ -67,8 +67,13 @@ Type: `string`
 
 A GitHub personal token, get one here: https://github.com/settings/tokens
 
+#### ref
+
+Type: `string`
+
+The name of the commit/branch/tag, default to `master`
+
 
 ## License
 
 MIT © [Federico Brigante](http://twitter.com/bfred_it)
-
