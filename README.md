@@ -14,12 +14,15 @@ $ npm install list-github-dir-content
 ```js
 const listContent = require('list-github-dir-content');
 
-const myToken = '000'; // https://github.com/settings/tokens
+const options = {
+  ref: 'master',
+  token: '' // Empty token disable auth
+};
 
 // They have the same output
-const filesArray = await listContent.viaTreesApi('Microsoft/vscode', 'src', myToken);
+const filesArray = await listContent.viaTreesApi('Microsoft/vscode', 'src', options);
 // OR
-const filesArray = await listContent.viaContentsApi('Microsoft/vscode', 'src', myToken);
+const filesArray = await listContent.viaContentsApi('Microsoft/vscode', 'src', options);
 
 // ['src/file.js', 'src/styles/main.css', ...]
 
@@ -43,7 +46,7 @@ Both methods return a Promise that resolves with an array of all the files in th
 
 **Notice:** while they work differently, they have the same output if no limit was reached.
 
-Known issues: 
+Known issues:
 
 - `viaContentsApi` is limited to 1000 files _per directory_
 - `viaTreesApi` is limited to around 60,000 files _per repo_
@@ -67,8 +70,13 @@ Type: `string`
 
 A GitHub personal token, get one here: https://github.com/settings/tokens
 
+#### ref
+
+Type: `string`
+
+The name of the commit/branch/tag, default to `master`
+
 
 ## License
 
 MIT © [Federico Brigante](http://twitter.com/bfred_it)
-
