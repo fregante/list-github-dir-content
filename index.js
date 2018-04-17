@@ -1,13 +1,13 @@
 const fetch = require('node-fetch'); // Automatically excluded in browser bundles
 
 function parseIdentifier(identifier) {
-	const [repo, ref = 'master'] = identifier.split('#');
+	const [repo, ref = 'HEAD'] = identifier.split('#');
 	return {repo, ref}
 }
 
 function stringifyQuery(params) {
 	return '?' + Object.keys(params)
-		.filter(param => typeof params[param] === 'string')
+		.filter(param => params[param] !== undefined)
 		.map(param => param + '=' + params[param])
 		.join('&');
 }
@@ -39,7 +39,7 @@ async function viaContentsApi(identifier, dir, token) {
 async function viaTreesApi(identifier, dir, token) {
 	const files = [];
 	const {repo, ref} = parseIdentifier(identifier);
-	const response = await fetch(`https://api.github.com/repos/${repo}/git/trees/{ref}${stringifyQuery({
+	const response = await fetch(`https://api.github.com/repos/${repo}/git/trees/${ref}${stringifyQuery({
 		recursive: 1,
 		access_token: token
 	})}`);
