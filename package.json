@@ -19,7 +19,8 @@
     "browser-fetch.js"
   ],
   "scripts": {
-    "test": "xo"
+    "test": "xo",
+    "manual-test": "node tests.js"
   },
   "devDependencies": {
     "xo": "*"
