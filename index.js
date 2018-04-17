@@ -1,15 +1,13 @@
 const fetch = require('node-fetch'); // Automatically excluded in browser bundles
 
+async function api(endpoint, token) {
+	token = token ? `&access_token=${token}` : '';
+	const response = await fetch(`https://api.github.com/repos/${endpoint}${token}`);
+	return response.json();
+}
 function parseIdentifier(identifier) {
 	const [repo, ref = 'HEAD'] = identifier.split('#');
-	return {repo, ref}
-}
-
-function stringifyQuery(params) {
-	return '?' + Object.keys(params)
-		.filter(param => params[param] !== undefined)
-		.map(param => param + '=' + params[param])
-		.join('&');
+	return {repo, ref};
 }
 
 // Great for downloads with few sub directories on big repos
@@ -18,11 +16,7 @@ async function viaContentsApi(identifier, dir, token) {
 	const files = [];
 	const requests = [];
 	const {repo, ref} = parseIdentifier(identifier);
-	const response = await fetch(`https://api.github.com/repos/${repo}/contents/${dir}${stringifyQuery({
-		ref,
-		access_token: token
-	})}`);
-	const contents = await response.json();
+	const contents = await api(`${repo}/contents/${dir}?ref=${ref}`, token);
 	for (const item of contents) {
 		if (item.type === 'file') {
 			files.push(item.path);
@@ -39,11 +33,7 @@ async function viaContentsApi(identifier, dir, token) {
 async function viaTreesApi(identifier, dir, token) {
 	const files = [];
 	const {repo, ref} = parseIdentifier(identifier);
-	const response = await fetch(`https://api.github.com/repos/${repo}/git/trees/${ref}${stringifyQuery({
-		recursive: 1,
-		access_token: token
-	})}`);
-	const contents = await response.json();
+	const contents = await api(`${repo}/git/trees/${ref}?recursive=1`, token);
 	for (const item of contents.tree) {
 		if (item.type === 'blob' && item.path.startsWith(dir)) {
 			files.push(item.path);
