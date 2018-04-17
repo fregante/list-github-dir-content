@@ -1,19 +1,33 @@
 const fetch = require('node-fetch'); // Automatically excluded in browser bundles
 
-const defaultRef = 'master';
+function parseIdentifier(identifier) {
+	const [repo, ref = 'master'] = identifier.split('#');
+	return {repo, ref}
+}
+
+function stringifyQuery(params) {
+	return '?' + Object.keys(params)
+		.filter(param => typeof params[param] === 'string')
+		.map(param => param + '=' + params[param])
+		.join('&');
+}
 
 // Great for downloads with few sub directories on big repos
 // Cons: many requests if the repo has a lot of nested dirs
-async function viaContentsApi(repo, dir, token, ref = defaultRef) {
+async function viaContentsApi(identifier, dir, token) {
 	const files = [];
 	const requests = [];
-	const response = await fetch(`https://api.github.com/repos/${repo}/contents/${dir}?access_token=${token}&ref=${ref}`);
+	const {repo, ref} = parseIdentifier(identifier);
+	const response = await fetch(`https://api.github.com/repos/${repo}/contents/${dir}${stringifyQuery({
+		ref,
+		access_token: token
+	})}`);
 	const contents = await response.json();
 	for (const item of contents) {
 		if (item.type === 'file') {
 			files.push(item.path);
 		} else if (item.type === 'dir') {
-			requests.push(viaContentsApi(repo, item.path, token, ref));
+			requests.push(viaContentsApi(repo, item.path, token));
 		}
 	}
 	return files.concat(...await Promise.all(requests));
@@ -21,10 +35,14 @@ async function viaContentsApi(repo, dir, token, ref = defaultRef) {
 
 // Great for downloads with many sub directories
 // Pros: one request + maybe doesn't require token
-// Cons: huge on huge repos + may be truncated and has to fallback to viaContentsApi
-async function viaTreesApi(repo, dir, token, ref = defaultRef) {
+// Cons: huge on huge repos + may be truncated
+async function viaTreesApi(identifier, dir, token) {
 	const files = [];
-	const response = await fetch(`https://api.github.com/repos/${repo}/git/trees/${ref}?recursive=1&access_token=${token}`);
+	const {repo, ref} = parseIdentifier(identifier);
+	const response = await fetch(`https://api.github.com/repos/${repo}/git/trees/{ref}${stringifyQuery({
+		recursive: 1,
+		access_token: token
+	})}`);
 	const contents = await response.json();
 	for (const item of contents.tree) {
 		if (item.type === 'blob' && item.path.startsWith(dir)) {

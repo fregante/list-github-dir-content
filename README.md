@@ -67,13 +67,8 @@ Type: `string`
 
 A GitHub personal token, get one here: https://github.com/settings/tokens
 
-#### ref
-
-Type: `string`
-
-The name of the commit/branch/tag, default to `master`
-
 
 ## License
 
 MIT © [Federico Brigante](http://twitter.com/bfred_it)
+
