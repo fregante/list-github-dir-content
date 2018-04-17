@@ -20,6 +20,8 @@ const myToken = '000'; // https://github.com/settings/tokens
 const filesArray = await listContent.viaTreesApi('Microsoft/vscode', 'src', myToken);
 // OR
 const filesArray = await listContent.viaContentsApi('Microsoft/vscode', 'src', myToken);
+// OR
+const filesArray = await listContent.viaContentsApi('Microsoft/vscode#master', 'src', myToken);
 
 // ['src/file.js', 'src/styles/main.css', ...]
 
@@ -32,8 +34,8 @@ if (filesArray.truncated) {
 
 ## API
 
-### listContent.viaTreesApi(repo, directory, token)
-### listContent.viaContentsApi(repo, directory, token)
+### listContent.viaTreesApi(identifier, directory, token)
+### listContent.viaContentsApi(identifier, directory, token)
 
 Both methods return a Promise that resolves with an array of all the files in the chosen directory. They just vary in GitHub API method used. The paths will be relative to root (i.e. if `directory` is `dist/images`, the array will be `['dist/images/1.png', 'dist/images/2.png']`)
 
@@ -43,17 +45,17 @@ Both methods return a Promise that resolves with an array of all the files in th
 
 **Notice:** while they work differently, they have the same output if no limit was reached.
 
-Known issues: 
+Known issues:
 
 - `viaContentsApi` is limited to 1000 files _per directory_
 - `viaTreesApi` is limited to around 60,000 files _per repo_
 
 
-#### repo
+#### identifier
 
 Type: `string`
 
-The `user/repo` combination, such as `Microsoft/vscode`.
+`user/repo` or `user/repo#reference` combination, such as `Microsoft/vscode` or `Microsoft/vscode#master`. If the reference is omitted, the default branch will be used.
 
 #### directory
 
