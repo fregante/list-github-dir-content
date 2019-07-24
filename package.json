@@ -2,38 +2,38 @@
   "name": "list-github-dir-content",
   "version": "1.1.0",
   "description": "List all the files in a GitHub repo’s directory",
-  "license": "MIT",
-  "repository": "bfred-it/list-github-dir-content",
-  "author": "Federico Brigante <github@bfred.it> (bfred.it)",
   "keywords": [
-    "github",
-    "contents",
     "api",
+    "contents",
     "dir",
     "directory",
     "folder",
+    "github",
     "listing"
   ],
+  "repository": "fregante/list-github-dir-content",
+  "license": "MIT",
+  "author": "Federico Brigante <opensource@bfred.it> (bfred.it)",
   "files": [
     "index.js",
     "browser-fetch.js"
   ],
-  "scripts": {
-    "test": "xo",
-    "manual-test": "node tests.js"
-  },
-  "devDependencies": {
-    "xo": "*"
-  },
   "browser": {
     "node-fetch": "./browser-fetch"
   },
-  "dependencies": {
-    "node-fetch": "^1.7.3"
+  "scripts": {
+    "manual-test": "node tests.js",
+    "test": "xo"
   },
   "xo": {
     "envs": [
       "browser"
     ]
+  },
+  "dependencies": {
+    "node-fetch": "^1.7.3"
+  },
+  "devDependencies": {
+    "xo": "*"
   }
 }

@@ -1,4 +1,4 @@
-# list-github-dir-content [![Build Status](https://travis-ci.org/bfred-it/list-github-dir-content.svg?branch=master)](https://travis-ci.org/bfred-it/list-github-dir-content)
+# list-github-dir-content [![Build Status](https://travis-ci.org/fregante/list-github-dir-content.svg?branch=master)](https://travis-ci.org/fregante/list-github-dir-content)
 
 > List all the files in a GitHub repo’s directory
 
@@ -72,5 +72,5 @@ A GitHub personal token, get one here: https://github.com/settings/tokens
 
 ## License
 
-MIT © [Federico Brigante](http://twitter.com/bfred_it)
+MIT © [Federico Brigante](https://bfred.it)
 
