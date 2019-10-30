@@ -5,6 +5,7 @@ async function api(endpoint, token) {
 	const response = await fetch(`https://api.github.com/repos/${endpoint}${token}`);
 	return response.json();
 }
+
 function parseIdentifier(identifier) {
 	const [repo, ref = 'HEAD'] = identifier.split('#');
 	return {repo, ref};
@@ -24,6 +25,7 @@ async function viaContentsApi(identifier, dir, token) {
 			requests.push(viaContentsApi(repo, item.path, token));
 		}
 	}
+
 	return files.concat(...await Promise.all(requests));
 }
 
@@ -39,6 +41,7 @@ async function viaTreesApi(identifier, dir, token) {
 			files.push(item.path);
 		}
 	}
+
 	files.truncated = contents.truncated;
 	return files;
 }
