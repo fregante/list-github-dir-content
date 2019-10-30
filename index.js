@@ -33,6 +33,10 @@ async function viaContentsApi(identifier, dir, token) {
 // Pros: one request + maybe doesn't require token
 // Cons: huge on huge repos + may be truncated
 async function viaTreesApi(identifier, dir, token) {
+	if (!dir.endsWith('/')) {
+		dir += '/';
+	}
+
 	const files = [];
 	const {repo, ref} = parseIdentifier(identifier);
 	const contents = await api(`${repo}/git/trees/${ref}?recursive=1`, token);
