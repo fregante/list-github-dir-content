@@ -3,9 +3,26 @@
 const listContent = require('.');
 
 listContent
-	.viaTreesApi('sindresorhus/refined-github', 'source/libs')
+	.viaTreesApi({
+		user: 'sindresorhus',
+		repository: 'refined-github',
+		directory: 'source/libs'
+	})
 	.then(data => console.log('\nviaTreesApi\n', data));
 
 listContent
-	.viaContentsApi('sindresorhus/refined-github', 'source/libs')
+	.viaTreesApi({
+		user: 'sindresorhus',
+		repository: 'refined-github',
+		directory: 'source/libs',
+		getDetails: true
+	})
+	.then(data => console.log('\nviaTreesApi (detailed)\n', data));
+
+listContent
+	.viaContentsApi({
+		user: 'sindresorhus',
+		repository: 'refined-github',
+		directory: 'source/libs'
+	})
 	.then(data => console.log('\nviaContentsApi\n', data));

@@ -17,11 +17,27 @@ const listContent = require('list-github-dir-content');
 const myToken = '000'; // https://github.com/settings/tokens
 
 // They have the same output
-const filesArray = await listContent.viaTreesApi('Microsoft/vscode', 'src', myToken);
+const filesArray = await listContent.viaTreesApi({
+	user: 'microsoft',
+	repository: 'vscode',
+	directory: 'src',
+	token: myToken
+});
 // OR
-const filesArray = await listContent.viaContentsApi('Microsoft/vscode', 'src', myToken);
+const filesArray = await listContent.viaContentsApi({
+	user: 'microsoft',
+	repository: 'vscode',
+	directory: 'src',
+	token: myToken
+});
 // OR
-const filesArray = await listContent.viaContentsApi('Microsoft/vscode#master', 'src', myToken);
+const filesArray = await listContent.viaContentsApi({
+	user: 'microsoft',
+	repository: 'vscode',
+	ref: 'master',
+	directory: 'src',
+	token: myToken
+});
 
 // ['src/file.js', 'src/styles/main.css', ...]
 
@@ -34,8 +50,8 @@ if (filesArray.truncated) {
 
 ## API
 
-### listContent.viaTreesApi(identifier, directory, token)
-### listContent.viaContentsApi(identifier, directory, token)
+### listContent.viaTreesApi({ user, repository, ref = 'HEAD', directory, token, getDetails = false })
+### listContent.viaContentsApi({ user, repository, ref = 'HEAD', directory, token })
 
 Both methods return a Promise that resolves with an array of all the files in the chosen directory. They just vary in GitHub API method used. The paths will be relative to root (i.e. if `directory` is `dist/images`, the array will be `['dist/images/1.png', 'dist/images/2.png']`)
 
@@ -51,11 +67,25 @@ Known issues:
 - `viaTreesApi` is limited to around 60,000 files _per repo_
 
 
-#### identifier
+#### user
 
 Type: `string`
 
-`user/repo` or `user/repo#reference` combination, such as `Microsoft/vscode` or `Microsoft/vscode#master`. If the reference is omitted, the default branch will be used.
+GitHub user or organization, such as `microsoft`.
+
+#### repository
+
+Type: `string`
+
+The user's repository to read, like `vscode`.
+
+#### ref
+
+Type: `string`
+
+Default: `"HEAD"`
+
+The reference to use, for example a pointer (`"HEAD"`), a branch name (`"master"`) or a commit hash (`"71705e0"`).
 
 #### directory
 
@@ -68,6 +98,16 @@ The directory to download, like `docs` or `dist/images`
 Type: `string`
 
 A GitHub personal token, get one here: https://github.com/settings/tokens
+
+#### getDetails
+
+Type: `boolean`
+
+Default: `false`
+
+Only available in `viaTreesApi`.
+
+When set to `true`, returns an array of metadata objects instead of an array of file paths. See the [GitHub API docs](https://developer.github.com/v3/git/trees/#response) for an example of how this metadata is structured.
 
 
 ## License
