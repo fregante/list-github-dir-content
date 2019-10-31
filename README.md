@@ -50,8 +50,8 @@ if (filesArray.truncated) {
 
 ## API
 
-### listContent.viaTreesApi({ user, repository, ref = 'HEAD', directory, token, getDetails = false })
-### listContent.viaContentsApi({ user, repository, ref = 'HEAD', directory, token })
+### listContent.viaTreesApi(options)
+### listContent.viaContentsApi(options)
 
 Both methods return a Promise that resolves with an array of all the files in the chosen directory. They just vary in GitHub API method used. The paths will be relative to root (i.e. if `directory` is `dist/images`, the array will be `['dist/images/1.png', 'dist/images/2.png']`)
 
@@ -66,6 +66,7 @@ Known issues:
 - `viaContentsApi` is limited to 1000 files _per directory_
 - `viaTreesApi` is limited to around 60,000 files _per repo_
 
+The following properties are available on the `options` object: 
 
 #### user
 
