@@ -8,13 +8,19 @@ async function api(endpoint, token) {
 
 // Great for downloads with few sub directories on big repos
 // Cons: many requests if the repo has a lot of nested dirs
-async function viaContentsApi({user, repository, ref = 'HEAD', directory, token}) {
+async function viaContentsApi({
+	user,
+	repository,
+	ref = 'HEAD',
+	directory,
+	token
+}) {
 	const files = [];
 	const requests = [];
 	const contents = await api(`${user}/${repository}/contents/${directory}?ref=${ref}`, token);
 	for (const item of contents) {
 		if (item.type === 'file') {
-			files.push(item.path);
+			files.push(getDetails ? item : item.path);
 		} else if (item.type === 'dir') {
 			requests.push(viaContentsApi({
 				user,
@@ -32,7 +38,14 @@ async function viaContentsApi({user, repository, ref = 'HEAD', directory, token}
 // Great for downloads with many sub directories
 // Pros: one request + maybe doesn't require token
 // Cons: huge on huge repos + may be truncated
-async function viaTreesApi({user, repository, ref = 'HEAD', directory, token, getDetails = false}) {
+async function viaTreesApi({
+	user,
+	repository,
+	ref = 'HEAD',
+	directory,
+	token,
+	getDetails = false
+}) {
 	if (!directory.endsWith('/')) {
 		directory += '/';
 	}
