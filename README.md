@@ -100,15 +100,15 @@ Type: `string`
 
 A GitHub personal token, get one here: https://github.com/settings/tokens
 
-#### getDetails
+#### getFullData
 
 Type: `boolean`
 
 Default: `false`
 
-Only available in `viaTreesApi`.
+When set to `true`, an array of metadata objects is returned instead of an array of file paths. Note that the metadata objects of `viaTreesApi` and `viaContentsApi` are different.
 
-When set to `true`, returns an array of metadata objects instead of an array of file paths. See the [GitHub API docs](https://developer.github.com/v3/git/trees/#response) for an example of how this metadata is structured.
+Take a look at the docs for either the [Git Trees API](https://developer.github.com/v3/git/trees/#response) and the [Contents API](https://developer.github.com/v3/repos/contents/#response) to see how the respective metadata is structured.
 
 
 ## License

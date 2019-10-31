@@ -13,21 +13,23 @@ async function viaContentsApi({
 	repository,
 	ref = 'HEAD',
 	directory,
-	token
+	token,
+	getFullData = false
 }) {
 	const files = [];
 	const requests = [];
 	const contents = await api(`${user}/${repository}/contents/${directory}?ref=${ref}`, token);
 	for (const item of contents) {
 		if (item.type === 'file') {
-			files.push(getDetails ? item : item.path);
+			files.push(getFullData ? item : item.path);
 		} else if (item.type === 'dir') {
 			requests.push(viaContentsApi({
 				user,
 				repository,
 				ref,
 				directory: item.path,
-				token
+				token,
+				getFullData
 			}));
 		}
 	}
@@ -44,7 +46,7 @@ async function viaTreesApi({
 	ref = 'HEAD',
 	directory,
 	token,
-	getDetails = false
+	getFullData = false
 }) {
 	if (!directory.endsWith('/')) {
 		directory += '/';
@@ -54,7 +56,7 @@ async function viaTreesApi({
 	const contents = await api(`${user}/${repository}/git/trees/${ref}?recursive=1`, token);
 	for (const item of contents.tree) {
 		if (item.type === 'blob' && item.path.startsWith(directory)) {
-			files.push(getDetails ? item : item.path);
+			files.push(getFullData ? item : item.path);
 		}
 	}
 
