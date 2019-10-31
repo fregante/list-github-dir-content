@@ -1,4 +1,4 @@
-interface ListGithubDirContentOptions {
+interface ListGithubDirOptions {
 	user: string
 	repository: string
 	ref?: string
@@ -11,15 +11,12 @@ interface TreeResult<T> extends Array<T> {
 	truncated: boolean
 }
 
-type ViaContentsApi = <ProvidedOptions extends ListGithubDirContentOptions>(options: ProvidedOptions) =>
-	ProvidedOptions['getFullData'] extends true ? Promise<any[]> : Promise<string[]>
-type ViaTreesApi = <ProvidedOptions extends ListGithubDirContentOptions>(options: ProvidedOptions) =>
-	ProvidedOptions['getFullData'] extends true ? Promise<TreeResult<any>> : Promise<TreeResult<string>>
+export function viaContentsApi<T extends ListGithubDirOptions> (options: T):
+	T['getFullData'] extends true ?
+		Promise<any[]> :
+		Promise<string[]>;
 
-
-declare const listContent: {
-	viaTreesApi: ViaTreesApi,
-	viaContentsApi: ViaContentsApi
-}
-
-export = listContent
+export function viaTreesApi<T extends ListGithubDirOptions> (options: T):
+	T['getFullData'] extends true ?
+		Promise<TreeResult<any>> :
+		Promise<TreeResult<string>>;
