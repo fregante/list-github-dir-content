@@ -68,6 +68,14 @@ Known issues:
 
 The following properties are available on the `options` object: 
 
+#### api
+
+Type: `string`
+
+Default: `"https://api.github.com"`
+
+The GitHub API endpoint to use, like `https://ghe.example.com/api`.
+
 #### user
 
 Type: `string`
