@@ -1,4 +1,5 @@
 interface ListGithubDirOptions {
+	api?: string
 	user: string
 	repository: string
 	ref?: string
