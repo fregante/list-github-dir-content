@@ -25,6 +25,7 @@ async function viaContentsApi({
 			files.push(getFullData ? item : item.path);
 		} else if (item.type === 'dir') {
 			requests.push(viaContentsApi({
+				api,
 				user,
 				repository,
 				ref,
