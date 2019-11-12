@@ -1,9 +1,13 @@
-interface ListGithubDirOptions {
-	api?: string
+interface ResourceOptions {
+	api: string
 	user: string
 	repository: string
 	ref?: string
 	directory: string
+}
+
+interface ListGithubDirOptions {
+	resource: string | ResourceOptions
 	token?: string
 	getFullData?: boolean
 }

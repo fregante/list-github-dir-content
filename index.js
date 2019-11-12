@@ -1,35 +1,59 @@
 const fetch = require('node-fetch'); // Automatically excluded in browser bundles
 
+// Matches '/<re/po>/tree/<ref>/<dir>'
+const urlParserRegex = /^[/]([^/]+)[/]([^/]+)[/]tree[/]([^/]+)[/](.*)/;
+
+function parseResource(res) {
+	if (typeof res === 'string') {
+		try {
+			const parsedUrl = new URL(res);
+			res = {api: 'https://api.github.com'};
+			[, res.user, res.repository, res.ref, res.directory] = urlParserRegex.exec(parsedUrl.pathname);
+			if (parsedUrl.hostname !== 'github.com') {
+				res.api = `${parsedUrl.protocol}//${parsedUrl.host}/api/v3`;
+			}
+		} catch {
+			throw new Error('Unable to parse GitHub URL');
+		}
+	}
+
+	// TODO: Validate
+	return res;
+}
+
 async function githubApi(api, endpoint, token) {
-	token = token ? `&access_token=${token}` : '';
-	const response = await fetch(`${api}/repos/${endpoint}${token}`);
+	const response = await fetch(`${api}/repos/${endpoint}`, {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	});
 	return response.json();
 }
 
 // Great for downloads with few sub directories on big repos
 // Cons: many requests if the repo has a lot of nested dirs
+
+// api = 'https://api.github.com',
+// user,
+// repository,
+// ref = 'HEAD',
+// directory,
+
 async function viaContentsApi({
-	api = 'https://api.github.com',
-	user,
-	repository,
-	ref = 'HEAD',
-	directory,
+	resource,
 	token,
 	getFullData = false
 }) {
+	const res = parseResource(resource);
 	const files = [];
 	const requests = [];
-	const contents = await githubApi(api, `${user}/${repository}/contents/${directory}?ref=${ref}`, token);
+	const contents = await githubApi(res.api, `${res.user}/${res.repository}/contents/${res.directory}?ref=${res.ref}`, token);
 	for (const item of contents) {
 		if (item.type === 'file') {
 			files.push(getFullData ? item : item.path);
 		} else if (item.type === 'dir') {
 			requests.push(viaContentsApi({
-				api,
-				user,
-				repository,
-				ref,
-				directory: item.path,
+				resource: res,
 				token,
 				getFullData
 			}));
@@ -43,22 +67,20 @@ async function viaContentsApi({
 // Pros: one request + maybe doesn't require token
 // Cons: huge on huge repos + may be truncated
 async function viaTreesApi({
-	api = 'https://api.github.com',
-	user,
-	repository,
-	ref = 'HEAD',
-	directory,
+	resource,
 	token,
 	getFullData = false
 }) {
-	if (!directory.endsWith('/')) {
-		directory += '/';
+	const res = parseResource(resource);
+
+	if (!res.directory.endsWith('/')) {
+		resource.directory += '/';
 	}
 
 	const files = [];
-	const contents = await githubApi(api, `${user}/${repository}/git/trees/${ref}?recursive=1`, token);
+	const contents = await githubApi(res.api, `${res.user}/${res.repository}/git/trees/${res.ref}?recursive=1`, token);
 	for (const item of contents.tree) {
-		if (item.type === 'blob' && item.path.startsWith(directory)) {
+		if (item.type === 'blob' && item.path.startsWith(res.directory)) {
 			files.push(getFullData ? item : item.path);
 		}
 	}
