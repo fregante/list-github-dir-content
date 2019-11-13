@@ -7,7 +7,7 @@ function parseGithubURL(url) {
 	const res = {};
 	const parsedUrl = new URL(url);
 	[, res.user, res.repository, res.ref, res.directory] = urlParserRegex.exec(parsedUrl.pathname) || [];
-	if (res.directory !== 'string') {
+	if (typeof res.directory !== 'string') {
 		throw new Error('Unable to parse GitHub URL');
 	}
 	if (parsedUrl.hostname === 'github.com') {
