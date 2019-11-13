@@ -3,24 +3,25 @@ const fetch = require('node-fetch'); // Automatically excluded in browser bundle
 // Matches '/<user>/<repo>/tree/<ref>/<dir>'
 const urlParserRegex = /^[/]([^/]+)[/]([^/]+)[/]tree[/]([^/]+)[/](.*)/;
 
-function parseResource(res) {
-	if (typeof res === 'string') {
-		const parsedUrl = new URL(res);
-		res = {};
-		[, res.user, res.repository, res.ref, res.directory] = urlParserRegex.exec(parsedUrl.pathname) || [];
-		if (typeof res.directory !== 'string') {
+function parseResource(resource) {
+	if (typeof resource === 'string') {
+		const parsedUrl = new URL(resource);
+		resource = {};
+		[, resource.user, resource.repository, resource.ref, resource.directory] =
+			urlParserRegex.exec(parsedUrl.pathname) || [];
+		if (typeof resource.directory !== 'string') {
 			throw new TypeError('Unable to parse GitHub URL');
 		}
 
 		if (parsedUrl.hostname !== 'github.com') {
-			res.api = `https://${parsedUrl.host}/api/v3`;
+			resource.api = `https://${parsedUrl.host}/api/v3`;
 		}
 	}
 
-	res.api = res.api || 'https://api.github.com';
-	res.ref = res.ref || 'HEAD';
+	resource.api = resource.api || 'https://api.github.com';
+	resource.ref = resource.ref || 'HEAD';
 	// TODO: Validate
-	return res;
+	return resource;
 }
 
 async function githubApi(api, endpoint, token) {
@@ -36,17 +37,21 @@ async function viaContentsApi({
 	token,
 	getFullData = false
 }) {
-	const res = parseResource(resource);
+	resource = parseResource(resource);
 	const files = [];
 	const requests = [];
-	const contents = await githubApi(res.api, `${res.user}/${res.repository}/contents/${res.directory}?ref=${res.ref}`, token);
+	const contents = await githubApi(
+		resource.api,
+		`${resource.user}/${resource.repository}/contents/${resource.directory}?ref=${resource.ref}`,
+		token
+	);
 
 	for (const item of contents) {
 		if (item.type === 'file') {
 			files.push(getFullData ? item : item.path);
 		} else if (item.type === 'dir') {
 			requests.push(viaContentsApi({
-				resource: res,
+				resource,
 				token,
 				getFullData
 			}));
@@ -64,17 +69,21 @@ async function viaTreesApi({
 	token,
 	getFullData = false
 }) {
-	const res = parseResource(resource);
+	resource = parseResource(resource);
 
 	const files = [];
-	const contents = await githubApi(res.api, `${res.user}/${res.repository}/git/trees/${res.ref}?recursive=1`, token);
+	const contents = await githubApi(
+		resource.api,
+		`${resource.user}/${resource.repository}/git/trees/${resource.ref}?recursive=1`,
+		token
+	);
 
-	if (!res.directory.endsWith('/')) {
-		res.directory += '/';
+	if (!resource.directory.endsWith('/')) {
+		resource.directory += '/';
 	}
 
 	for (const item of contents.tree) {
-		if (item.type === 'blob' && item.path.startsWith(res.directory)) {
+		if (item.type === 'blob' && item.path.startsWith(resource.directory)) {
 			files.push(getFullData ? item : item.path);
 		}
 	}
