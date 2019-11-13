@@ -12,7 +12,7 @@ function parseResource(res) {
 			if (parsedUrl.hostname === 'github.com') {
 				res.api = 'https://api.github.com';
 			} else {
-				res.api = `${parsedUrl.protocol}//${parsedUrl.host}/api/v3`;
+				res.api = `https://${parsedUrl.host}/api/v3`;
 			}
 		} catch {
 			throw new Error('Unable to parse GitHub URL');
