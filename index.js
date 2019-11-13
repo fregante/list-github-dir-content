@@ -1,6 +1,6 @@
 const fetch = require('node-fetch'); // Automatically excluded in browser bundles
 
-// Matches '/<re/po>/tree/<ref>/<dir>'
+// Matches '/<user>/<repo>/tree/<ref>/<dir>'
 const urlParserRegex = /^[/]([^/]+)[/]([^/]+)[/]tree[/]([^/]+)[/](.*)/;
 
 function parseResource(res) {
