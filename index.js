@@ -5,30 +5,25 @@ const urlParserRegex = /^[/]([^/]+)[/]([^/]+)[/]tree[/]([^/]+)[/](.*)/;
 
 function parseResource(res) {
 	if (typeof res === 'string') {
-		try {
-			const parsedUrl = new URL(res);
-			res = {};
-			[, res.user, res.repository, res.ref, res.directory] = urlParserRegex.exec(parsedUrl.pathname);
-			if (parsedUrl.hostname === 'github.com') {
-				res.api = 'https://api.github.com';
-			} else {
-				res.api = `https://${parsedUrl.host}/api/v3`;
-			}
-		} catch {
-			throw new Error('Unable to parse GitHub URL');
+		const parsedUrl = new URL(res);
+		res = {};
+		[, res.user, res.repository, res.ref, res.directory] = urlParserRegex.exec(parsedUrl.pathname) || [];
+		if (typeof res.directory !== 'string') {
+			throw new TypeError('Unable to parse GitHub URL');
+		}
+		if (parsedUrl.hostname !== 'github.com') {
+			res.api = `https://${parsedUrl.host}/api/v3`;
 		}
 	}
-
+	res.api = res.api || 'https://api.github.com';
+	res.ref = res.ref || 'HEAD';
 	// TODO: Validate
 	return res;
 }
 
 async function githubApi(api, endpoint, token) {
-	const response = await fetch(`${api}/repos/${endpoint}`, {
-		headers: {
-			Authorization: `Bearer ${token}`
-		}
-	});
+	token = token ? `&access_token=${token}` : '';
+	const response = await fetch(`${api}/repos/${endpoint}${token}`);
 	return response.json();
 }
 
@@ -75,6 +70,7 @@ async function viaTreesApi({
 
 	const files = [];
 	const contents = await githubApi(res.api, `${res.user}/${res.repository}/git/trees/${res.ref}?recursive=1`, token);
+
 	for (const item of contents.tree) {
 		if (item.type === 'blob' && item.path.startsWith(res.directory)) {
 			files.push(getFullData ? item : item.path);
