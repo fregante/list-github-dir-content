@@ -66,12 +66,12 @@ async function viaTreesApi({
 }) {
 	const res = parseResource(resource);
 
-	if (!res.directory.endsWith('/')) {
-		resource.directory += '/';
-	}
-
 	const files = [];
 	const contents = await githubApi(res.api, `${res.user}/${res.repository}/git/trees/${res.ref}?recursive=1`, token);
+
+	if (!res.directory.endsWith('/')) {
+		res.directory += '/';
+	}
 
 	for (const item of contents.tree) {
 		if (item.type === 'blob' && item.path.startsWith(res.directory)) {
