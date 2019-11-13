@@ -57,7 +57,7 @@ listContent
 		resource: {
 			user: 'sindresorhus',
 			repository: 'refined-github',
-			directory: 'source/libs',
+			directory: 'source/libs'
 		},
 		getFullData: true
 	})

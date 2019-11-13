@@ -11,10 +11,12 @@ function parseResource(res) {
 		if (typeof res.directory !== 'string') {
 			throw new TypeError('Unable to parse GitHub URL');
 		}
+
 		if (parsedUrl.hostname !== 'github.com') {
 			res.api = `https://${parsedUrl.host}/api/v3`;
 		}
 	}
+
 	res.api = res.api || 'https://api.github.com';
 	res.ref = res.ref || 'HEAD';
 	// TODO: Validate
