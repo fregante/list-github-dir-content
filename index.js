@@ -35,12 +35,6 @@ async function githubApi(api, endpoint, token) {
 // Great for downloads with few sub directories on big repos
 // Cons: many requests if the repo has a lot of nested dirs
 
-// api = 'https://api.github.com',
-// user,
-// repository,
-// ref = 'HEAD',
-// directory,
-
 async function viaContentsApi({
 	resource,
 	token,
