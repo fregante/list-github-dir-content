@@ -3,22 +3,18 @@ const fetch = require('node-fetch'); // Automatically excluded in browser bundle
 // Matches '/<user>/<repo>/tree/<ref>/<dir>'
 const urlParserRegex = /^[/]([^/]+)[/]([^/]+)[/]tree[/]([^/]+)[/](.*)/;
 
-function parseResource(res) {
-	if (typeof res === 'string') {
-		try {
-			const parsedUrl = new URL(res);
-			res = {};
-			[, res.user, res.repository, res.ref, res.directory] = urlParserRegex.exec(parsedUrl.pathname);
-			if (parsedUrl.hostname === 'github.com') {
-				res.api = 'https://api.github.com';
-			} else {
-				res.api = `https://${parsedUrl.host}/api/v3`;
-			}
-		} catch {
-			throw new Error('Unable to parse GitHub URL');
-		}
+function parseGithubURL(url) {
+	const res = {};
+	const parsedUrl = new URL(url);
+	[, res.user, res.repository, res.ref, res.directory] = urlParserRegex.exec(parsedUrl.pathname) || [];
+	if (res.directory !== 'string') {
+		throw new Error('Unable to parse GitHub URL');
 	}
-
+	if (parsedUrl.hostname === 'github.com') {
+		res.api = 'https://api.github.com';
+	} else {
+		res.api = `https://${parsedUrl.host}/api/v3`;
+	}
 	// TODO: Validate
 	return res;
 }
@@ -36,11 +32,13 @@ async function githubApi(api, endpoint, token) {
 // Cons: many requests if the repo has a lot of nested dirs
 
 async function viaContentsApi({
-	resource,
+	resource: res,
 	token,
 	getFullData = false
 }) {
-	const res = parseResource(resource);
+	if (typeof res === 'string') {
+		res = parseGithubURL(res);
+	}
 	const files = [];
 	const requests = [];
 	const contents = await githubApi(res.api, `${res.user}/${res.repository}/contents/${res.directory}?ref=${res.ref}`, token);
@@ -63,18 +61,21 @@ async function viaContentsApi({
 // Pros: one request + maybe doesn't require token
 // Cons: huge on huge repos + may be truncated
 async function viaTreesApi({
-	resource,
+	resource: res,
 	token,
 	getFullData = false
 }) {
-	const res = parseResource(resource);
-
-	if (!res.directory.endsWith('/')) {
-		resource.directory += '/';
+	if (typeof res === 'string') {
+		res = parseGithubURL(res);
 	}
 
 	const files = [];
 	const contents = await githubApi(res.api, `${res.user}/${res.repository}/git/trees/${res.ref}?recursive=1`, token);
+
+	if (!res.directory.endsWith('/')) {
+		res.directory += '/';
+	}
+
 	for (const item of contents.tree) {
 		if (item.type === 'blob' && item.path.startsWith(res.directory)) {
 			files.push(getFullData ? item : item.path);
