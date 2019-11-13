@@ -10,11 +10,13 @@ function parseGithubURL(url) {
 	if (typeof res.directory !== 'string') {
 		throw new Error('Unable to parse GitHub URL');
 	}
+
 	if (parsedUrl.hostname === 'github.com') {
 		res.api = 'https://api.github.com';
 	} else {
 		res.api = `https://${parsedUrl.host}/api/v3`;
 	}
+
 	// TODO: Validate
 	return res;
 }
@@ -30,7 +32,6 @@ async function githubApi(api, endpoint, token) {
 
 // Great for downloads with few sub directories on big repos
 // Cons: many requests if the repo has a lot of nested dirs
-
 async function viaContentsApi({
 	resource: res,
 	token,
@@ -39,9 +40,11 @@ async function viaContentsApi({
 	if (typeof res === 'string') {
 		res = parseGithubURL(res);
 	}
+
 	const files = [];
 	const requests = [];
 	const contents = await githubApi(res.api, `${res.user}/${res.repository}/contents/${res.directory}?ref=${res.ref}`, token);
+
 	for (const item of contents) {
 		if (item.type === 'file') {
 			files.push(getFullData ? item : item.path);
