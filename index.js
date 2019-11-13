@@ -7,9 +7,11 @@ function parseResource(res) {
 	if (typeof res === 'string') {
 		try {
 			const parsedUrl = new URL(res);
-			res = {api: 'https://api.github.com'};
+			res = {};
 			[, res.user, res.repository, res.ref, res.directory] = urlParserRegex.exec(parsedUrl.pathname);
-			if (parsedUrl.hostname !== 'github.com') {
+			if (parsedUrl.hostname === 'github.com') {
+				res.api = 'https://api.github.com';
+			} else {
 				res.api = `${parsedUrl.protocol}//${parsedUrl.host}/api/v3`;
 			}
 		} catch {
