@@ -2,36 +2,52 @@
 
 const listContent = require('.');
 
-listContent
-	.viaTreesApi({
-		user: 'sindresorhus',
-		repository: 'refined-github',
-		directory: 'source/libs'
-	})
-	.then(data => console.log('\nviaTreesApi\n', data));
+async function init() {
+	let data;
 
-listContent
-	.viaTreesApi({
+	data = await listContent.viaTreesApi({
 		user: 'sindresorhus',
 		repository: 'refined-github',
-		directory: 'source/libs',
+		directory: 'source/helpers'
+	});
+	console.log('\nviaTreesApi\n', data);
+
+	data = await listContent.viaTreesApi({
+		user: 'sindresorhus',
+		repository: 'refined-github',
+		directory: 'source/helpers',
 		getFullData: true
-	})
-	.then(data => console.log('\nviaTreesApi (detailed)\n', data));
+	});
+	console.log('\nviaTreesApi (detailed)\n', data);
 
-listContent
-	.viaContentsApi({
+	data = await listContent.viaTreesApi({
 		user: 'sindresorhus',
 		repository: 'refined-github',
-		directory: 'source/libs'
-	})
-	.then(data => console.log('\nviaContentsApi\n', data));
+		directory: 'missing/dir'
+	});
+	console.log('\nviaTreesApi (404)\n', data);
 
-listContent
-	.viaContentsApi({
+	data = await listContent.viaContentsApi({
 		user: 'sindresorhus',
 		repository: 'refined-github',
-		directory: 'source/libs',
+		directory: 'source/helpers'
+	});
+	console.log('\nviaContentsApi\n', data);
+
+	data = await listContent.viaContentsApi({
+		user: 'sindresorhus',
+		repository: 'refined-github',
+		directory: 'source/helpers',
 		getFullData: true
-	})
-	.then(data => console.log('\nviaContentsApi (detailed)\n', data));
+	});
+	console.log('\nviaContentsApi (detailed)\n', data);
+
+	data = await listContent.viaContentsApi({
+		user: 'sindresorhus',
+		repository: 'refined-github',
+		directory: 'missing/dir'
+	});
+	console.log('\nviaContentsApi (404)\n', data);
+}
+
+init().catch(console.error);

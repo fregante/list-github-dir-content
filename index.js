@@ -19,6 +19,11 @@ async function viaContentsApi({
 	const files = [];
 	const requests = [];
 	const contents = await api(`${user}/${repository}/contents/${directory}?ref=${ref}`, token);
+
+	if (contents.message === 'Not Found') {
+		return [];
+	}
+
 	for (const item of contents) {
 		if (item.type === 'file') {
 			files.push(getFullData ? item : item.path);
