@@ -31,9 +31,9 @@
     ]
   },
   "dependencies": {
-    "node-fetch": "^1.7.3"
+    "node-fetch": "^2.6.0"
   },
   "devDependencies": {
-    "xo": "*"
+    "xo": "^0.32.0"
   }
 }

@@ -1,7 +1,7 @@
 const fetch = require('node-fetch'); // Automatically excluded in browser bundles
 
 // Matches '/<user>/<repo>/tree/<ref>/<dir>'
-const urlParserRegex = /^[/]([^/]+)[/]([^/]+)[/]tree[/]([^/]+)[/](.*)/;
+const urlParserRegex = /^\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.*)/;
 
 function parseResource(resource) {
 	if (typeof resource === 'string') {
@@ -25,8 +25,11 @@ function parseResource(resource) {
 }
 
 async function githubApi(api, endpoint, token) {
-	token = token ? `&access_token=${token}` : '';
-	const response = await fetch(`${api}/repos/${endpoint}${token}`);
+	const response = await fetch(`${api}/repos/${endpoint}`, {
+		headers: token ? {
+			Authorization: `Bearer ${token}`
+		} : undefined
+	});
 	return response.json();
 }
 
@@ -45,6 +48,14 @@ async function viaContentsApi({
 		`${resource.user}/${resource.repository}/contents/${resource.directory}?ref=${resource.ref}`,
 		token
 	);
+
+	if (contents.message === 'Not Found') {
+		return [];
+	}
+
+	if (contents.message) {
+		throw new Error(contents.message);
+	}
 
 	for (const item of contents) {
 		if (item.type === 'file') {
@@ -78,12 +89,12 @@ async function viaTreesApi({
 		token
 	);
 
-	if (!resource.directory.endsWith('/')) {
-		resource.directory += '/';
+	if (contents.message) {
+		throw new Error(contents.message);
 	}
 
 	for (const item of contents.tree) {
-		if (item.type === 'blob' && item.path.startsWith(resource.directory)) {
+		if (item.type === 'blob' && item.path.startsWith(resource.directory + '/')) {
 			files.push(getFullData ? item : item.path);
 		}
 	}
