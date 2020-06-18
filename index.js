@@ -24,6 +24,10 @@ async function viaContentsApi({
 		return [];
 	}
 
+	if (contents.message) {
+		throw new Error(contents.message);
+	}
+
 	for (const item of contents) {
 		if (item.type === 'file') {
 			files.push(getFullData ? item : item.path);
@@ -59,6 +63,10 @@ async function viaTreesApi({
 
 	const files = [];
 	const contents = await api(`${user}/${repository}/git/trees/${ref}?recursive=1`, token);
+	if (contents.message) {
+		throw new Error(contents.message);
+	}
+
 	for (const item of contents.tree) {
 		if (item.type === 'blob' && item.path.startsWith(directory)) {
 			files.push(getFullData ? item : item.path);
