@@ -1,8 +1,11 @@
 const fetch = require('node-fetch'); // Automatically excluded in browser bundles
 
 async function api(endpoint, token) {
-	token = token ? `&access_token=${token}` : '';
-	const response = await fetch(`https://api.github.com/repos/${endpoint}${token}`);
+	const response = await fetch(`https://api.github.com/repos/${endpoint}`, {
+		headers: token ? {
+			Authorization: `Bearer ${token}`
+		} : undefined
+	});
 	return response.json();
 }
 
