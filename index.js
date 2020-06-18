@@ -23,14 +23,12 @@ function parseResource(resource) {
 	}, resource);
 }
 
-
 async function queryApi(url, token) {
 	const response = await fetch(url, token ? {
-			headers: {
-				Authorization: `Bearer ${token}`
-			}
-		} : undefined
-	);
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	} : undefined);
 	const contents = await response.json();
 
 	if (contents.message && contents.message !== 'Not Found') {
