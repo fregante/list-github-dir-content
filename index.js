@@ -1,36 +1,43 @@
 const fetch = require('node-fetch'); // Automatically excluded in browser bundles
 
-// Matches '/<user>/<repo>/tree/<ref>/<dir>'
-const urlParserRegex = /^\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.*)/;
-
 function parseResource(resource) {
 	if (typeof resource === 'string') {
 		const parsedUrl = new URL(resource);
-		resource = {};
-		[, resource.user, resource.repository, resource.ref, resource.directory] =
-			urlParserRegex.exec(parsedUrl.pathname) || [];
-		if (typeof resource.directory !== 'string') {
-			throw new TypeError('Unable to parse GitHub URL');
+		const [, user, repository, type, ref, directory] = parsedUrl.pathname.split('/');
+		if (type !== 'tree') {
+			throw new TypeError('Incompatible URL type, only `tree` works: ' + type);
 		}
 
-		if (parsedUrl.hostname !== 'github.com') {
-			resource.api = `https://${parsedUrl.host}/api/v3`;
-		}
+		resource = {user, repository, ref, directory, origin: parsedUrl.origin};
 	}
 
-	resource.api = resource.api || 'https://api.github.com';
-	resource.ref = resource.ref || 'HEAD';
-	// TODO: Validate
-	return resource;
+	if (!resource.origin || resource.origin === 'https://github.com') {
+		resource.origin = 'https://api.github.com';
+	} else {
+		const parsedOrigin = new URL(resource.origin);
+		resource.origin = `https://${parsedOrigin.host}/api/v3`;
+	}
+
+	return Object.assign({
+		ref: 'HEAD'
+	}, resource);
 }
 
-async function githubApi(api, endpoint, token) {
-	const response = await fetch(`${api}/repos/${endpoint}`, {
-		headers: token ? {
-			Authorization: `Bearer ${token}`
+
+async function queryApi(url, token) {
+	const response = await fetch(url, token ? {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
 		} : undefined
-	});
-	return response.json();
+	);
+	const contents = await response.json();
+
+	if (contents.message && contents.message !== 'Not Found') {
+		throw new Error(contents.message);
+	}
+
+	return contents;
 }
 
 // Great for downloads with few sub directories on big repos
@@ -41,22 +48,17 @@ async function viaContentsApi({
 	getFullData = false
 }) {
 	resource = parseResource(resource);
-	const files = [];
-	const requests = [];
-	const contents = await githubApi(
-		resource.api,
-		`${resource.user}/${resource.repository}/contents/${resource.directory}?ref=${resource.ref}`,
-		token
-	);
+
+	const url = new URL(`repos/${resource.user}/${resource.repository}/contents/${resource.directory}`, resource.origin);
+	url.searchParams.set('ref', resource.ref);
+	const contents = await queryApi(url, token);
 
 	if (contents.message === 'Not Found') {
 		return [];
 	}
 
-	if (contents.message) {
-		throw new Error(contents.message);
-	}
-
+	const files = [];
+	const requests = [];
 	for (const item of contents) {
 		if (item.type === 'file') {
 			files.push(getFullData ? item : item.path);
@@ -82,17 +84,11 @@ async function viaTreesApi({
 }) {
 	resource = parseResource(resource);
 
+	const url = new URL(`repos/${resource.user}/${resource.repository}/git/trees/${resource.ref}`, resource.origin);
+	url.searchParams.set('recursive', 1);
+	const contents = await queryApi(url, token);
+
 	const files = [];
-	const contents = await githubApi(
-		resource.api,
-		`${resource.user}/${resource.repository}/git/trees/${resource.ref}?recursive=1`,
-		token
-	);
-
-	if (contents.message) {
-		throw new Error(contents.message);
-	}
-
 	for (const item of contents.tree) {
 		if (item.type === 'blob' && item.path.startsWith(resource.directory + '/')) {
 			files.push(getFullData ? item : item.path);

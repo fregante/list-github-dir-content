@@ -66,15 +66,15 @@ Known issues:
 - `viaContentsApi` is limited to 1000 files _per directory_
 - `viaTreesApi` is limited to around 60,000 files _per repo_
 
-The following properties are available on the `options` object: 
+The following properties are available on the `options` object:
 
-#### api
+#### origin
 
 Type: `string`
 
-Default: `"https://api.github.com"`
+Default: `"https://github.com"`
 
-The GitHub API endpoint to use, like `https://ghe.example.com/api`.
+The GitHub URL to query. This can be set to support GitHub Enterprise. For example you'd set `"https://github.example.com"`.
 
 #### user
 
