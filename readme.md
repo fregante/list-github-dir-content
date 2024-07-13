@@ -1,4 +1,4 @@
-# list-github-dir-content [![Build Status](https://travis-ci.org/fregante/list-github-dir-content.svg?branch=master)](https://travis-ci.org/fregante/list-github-dir-content)
+# list-github-dir-content
 
 > List all the files in a GitHub repo’s directory
 
@@ -8,30 +8,32 @@
 $ npm install list-github-dir-content
 ```
 
-
 ## Usage
 
 ```js
-const listContent = require('list-github-dir-content');
+import {
+	getDirectoryContentViaTreesApi,
+	getDirectoryContentViaContentsApi
+} from 'list-github-dir-content';
 
 const myToken = '000'; // https://github.com/settings/tokens
 
 // They have the same output
-const filesArray = await listContent.viaTreesApi({
+const filesArray = await getDirectoryContentViaTreesApi({
 	user: 'microsoft',
 	repository: 'vscode',
 	directory: 'src',
 	token: myToken
 });
 // OR
-const filesArray = await listContent.viaContentsApi({
+const filesArray = await getDirectoryContentViaContentsApi({
 	user: 'microsoft',
 	repository: 'vscode',
 	directory: 'src',
 	token: myToken
 });
 // OR
-const filesArray = await listContent.viaContentsApi({
+const filesArray = await getDirectoryContentViaContentsApi({
 	user: 'microsoft',
 	repository: 'vscode',
 	ref: 'master',
@@ -41,7 +43,7 @@ const filesArray = await listContent.viaContentsApi({
 
 // ['src/file.js', 'src/styles/main.css', ...]
 
-// listContent.viaTreesApi also adds a `truncated` property
+// getDirectoryContentViaTreesApi also adds a `truncated` property
 if (filesArray.truncated) {
 	// Perhaps try with viaContentsApi?
 }
@@ -50,8 +52,8 @@ if (filesArray.truncated) {
 
 ## API
 
-### listContent.viaTreesApi(options)
-### listContent.viaContentsApi(options)
+### getDirectoryContentViaTreesApi(options)
+### getDirectoryContentViaContentsApi(options)
 
 Both methods return a Promise that resolves with an array of all the files in the chosen directory. They just vary in GitHub API method used. The paths will be relative to root (i.e. if `directory` is `dist/images`, the array will be `['dist/images/1.png', 'dist/images/2.png']`)
 
@@ -66,7 +68,7 @@ Known issues:
 - `viaContentsApi` is limited to 1000 files _per directory_
 - `viaTreesApi` is limited to around 60,000 files _per repo_
 
-The following properties are available on the `options` object: 
+The following properties are available on the `options` object:
 
 #### user
 
@@ -113,5 +115,5 @@ Take a look at the docs for either the [Git Trees API](https://developer.github.
 
 ## License
 
-MIT © [Federico Brigante](https://bfred.it)
+MIT © [Federico Brigante](https://fregante.com)
 
