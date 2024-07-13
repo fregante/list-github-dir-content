@@ -1,27 +1,25 @@
-const fetch = require('node-fetch'); // Automatically excluded in browser bundles
-
 async function api(endpoint, token) {
 	const response = await fetch(`https://api.github.com/repos/${endpoint}`, {
 		headers: token ? {
-			Authorization: `Bearer ${token}`
-		} : undefined
+			Authorization: `Bearer ${token}`,
+		} : undefined,
 	});
 	return response.json();
 }
 
 // Great for downloads with few sub directories on big repos
 // Cons: many requests if the repo has a lot of nested dirs
-async function viaContentsApi({
+export async function getDirectoryContentViaContentsApi({
 	user,
 	repository,
-	ref = 'HEAD',
+	ref: reference = 'HEAD',
 	directory,
 	token,
-	getFullData = false
+	getFullData = false,
 }) {
 	const files = [];
 	const requests = [];
-	const contents = await api(`${user}/${repository}/contents/${directory}?ref=${ref}`, token);
+	const contents = await api(`${user}/${repository}/contents/${directory}?ref=${reference}`, token);
 
 	if (contents.message === 'Not Found') {
 		return [];
@@ -35,37 +33,37 @@ async function viaContentsApi({
 		if (item.type === 'file') {
 			files.push(getFullData ? item : item.path);
 		} else if (item.type === 'dir') {
-			requests.push(viaContentsApi({
+			requests.push(getDirectoryContentViaContentsApi({
 				user,
 				repository,
-				ref,
+				ref: reference,
 				directory: item.path,
 				token,
-				getFullData
+				getFullData,
 			}));
 		}
 	}
 
-	return files.concat(...await Promise.all(requests));
+	return [...files, ...await Promise.all(requests)];
 }
 
 // Great for downloads with many sub directories
 // Pros: one request + maybe doesn't require token
 // Cons: huge on huge repos + may be truncated
-async function viaTreesApi({
+export async function getDirectoryContentViaTreesApi({
 	user,
 	repository,
-	ref = 'HEAD',
+	ref: reference = 'HEAD',
 	directory,
 	token,
-	getFullData = false
+	getFullData = false,
 }) {
 	if (!directory.endsWith('/')) {
 		directory += '/';
 	}
 
 	const files = [];
-	const contents = await api(`${user}/${repository}/git/trees/${ref}?recursive=1`, token);
+	const contents = await api(`${user}/${repository}/git/trees/${reference}?recursive=1`, token);
 	if (contents.message) {
 		throw new Error(contents.message);
 	}
@@ -79,8 +77,3 @@ async function viaTreesApi({
 	files.truncated = contents.truncated;
 	return files;
 }
-
-module.exports.viaContentsApi = viaContentsApi;
-module.exports.viaContentApi = viaContentsApi;
-module.exports.viaTreesApi = viaTreesApi;
-module.exports.viaTreeApi = viaTreesApi;
