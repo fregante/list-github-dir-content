@@ -44,7 +44,7 @@ export async function getDirectoryContentViaContentsApi({
 		}
 	}
 
-	return files.concat(...await Promise.all(requests));
+	return [...files, ...await Promise.all(requests)];
 }
 
 // Great for downloads with many sub directories
