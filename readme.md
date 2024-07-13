@@ -5,7 +5,7 @@
 ## Install
 
 ```
-$ npm install list-github-dir-content
+npm install list-github-dir-content
 ```
 
 ## Usage
