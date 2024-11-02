@@ -33,7 +33,7 @@ export async function getDirectoryContentViaContentsApi({
 		if (item.type === 'file') {
 			files.push(getFullData ? item : item.path);
 		} else if (item.type === 'dir') {
-			requests.push(getDirectoryContentViaContentsApi({
+			requests.push(...getDirectoryContentViaContentsApi({
 				user,
 				repository,
 				ref: reference,
