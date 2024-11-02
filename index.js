@@ -33,7 +33,7 @@ export async function getDirectoryContentViaContentsApi({
 		if (item.type === 'file') {
 			files.push(getFullData ? item : item.path);
 		} else if (item.type === 'dir') {
-			requests.push(...getDirectoryContentViaContentsApi({
+			requests.push(getDirectoryContentViaContentsApi({
 				user,
 				repository,
 				ref: reference,
@@ -44,7 +44,7 @@ export async function getDirectoryContentViaContentsApi({
 		}
 	}
 
-	return [...files, ...await Promise.all(requests)];
+	return [...files, ...await Promise.all(requests)].flat();
 }
 
 // Great for downloads with many sub directories
