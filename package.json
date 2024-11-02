@@ -1,6 +1,6 @@
 {
   "name": "list-github-dir-content",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "List all the files in a GitHub repo’s directory",
   "keywords": [
     "api",
